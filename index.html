@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <title>Pókemon</title>
+
+</head>
+
+<body onload="getPokemons()">
+    <div class="container-fluid">
+        <h2 class="text-center m-3">Lista de pokemones</h2>
+        <div class="row">
+            <div id="container">
+            </div>
+        </div>
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item"><button type="button" class="btn btn-outline-primary"
+                        id="btnPrevious">Anterior</button></li>
+                <li class="page-item"><button type="button" class="btn btn-outline-primary"
+                        id="btnNext">Siguiente</button></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script>
+        let appUrl = 'https://pokeapi.co/api/v2/pokemon/';
+        let btnPrevious = document.getElementById('btnPrevious');
+        let btnNext = document.getElementById('btnNext');
+        let container = document.getElementById('container');
+
+        let getPokemons = () => {
+            let response = fetch(appUrl)
+                .then((res) => res.json())
+                .then((data) => {
+                    let cards = '<div class="row justify-content-center">'
+                    let results = data.results;
+                    console.log(results);
+                    results.forEach(pokemon => {
+                        let secondFetch = fetch(pokemon.url)
+                            .then((res) => res.json())
+                            .then((data) => {
+                                let listAbilities = "";
+                                for (let i = 0; i < data.abilities.length; i++) {
+                                    listAbilities += "<li>" + data.abilities[i].ability.name + "</li>";
+                                }
+                                cards +=
+                                    '<div class="card m-2" style="width: 18rem;">' +
+                                        '<img src="' + data.sprites.other['official-artwork'].front_default + '" class="card-img-top">' +
+                                        '<div class="card-body">' +
+                                            '<h3 class="card-title">' + pokemon.name + '</h3>' +
+                                            '<hr>' +
+                                            '<h5>Habilidades</h5>' +
+                                            '<p class="card-text">' +
+                                                '<ul>' +
+                                                    listAbilities +
+                                                '</ul>' +
+                                            '</p>' +
+                                        '</div>' +
+                                    '</div>';
+                                if (container != null) {
+                                    container.innerHTML = cards;
+                                }
+                            });
+                    });
+                    if (data.previous == null) {
+                        btnPrevious.disabled = true;
+                    } else {
+                        btnPrevious.disabled = false;
+                        btnPrevious.onclick = clic = () => {
+                            appUrl = data.previous;
+                            getPokemons();
+                        }
+                    }
+                    if (data.next == null) {
+                        btnNext.disabled = true;
+                    } else {
+                        //console.log(data.next);
+                        btnNext.disabled = false;
+                        btnNext.onclick = () => {
+                            appUrl = data.next;
+                            getPokemons();
+                        }
+                    }
+                })
+        }
+    </script>
+    
+    <!-- <script>
+
+        let btnPrevious = document.getElementById('btnPrevious');
+        let btnNext = document.getElementById('btnNext');
+        let APP_URL = 'https://pokeapi.co/api/v2/pokemon/';
+        
+        let fetchPromise = fetch(APP_URL);
+
+        let getPokemons = () => {
+            fetchPromise
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                returnCards(data.results);
+                if (data.previous == null) {
+                    btnPrevious.disabled = true;
+                } else {
+                    btnPrevious.disabled = false;
+                    btnPrevious.onclick = clic = () => {
+                        APP_URL = data.previous;
+                        returnCards(data.results);
+                    }
+                }
+                if (data.next == null) {
+                    btnNext.disabled = true;
+                } else {
+                    //console.log(data.next);
+                    btnNext.disabled = false;
+                    btnNext.onclick = () => {
+                        APP_URL = data.next;
+                        returnCards(data.results);
+                        console.log(APP_URL);
+                    }
+                }
+            });
+        }
+
+        function returnCards(listPokemons) {
+            let cardContainer = document.getElementById('container');
+            listPokemons.forEach(pokemon => {
+                let fetchUrl = fetch(pokemon.url)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        let listAbilities = "";
+                        for (let i = 0; i < data.abilities.length; i++) {
+                            listAbilities += "<li>" + data.abilities[i].ability.name + "</li>";
+                        }
+
+                        container.innerHTML = `
+                            ${cardContainer.innerHTML}
+                            <div class="row col-sm-6 col-md-4 col-lg-3 justify-content-center">
+                                <div class="card m-2" style="width: 18rem;">
+                                    <img src="${data.sprites.other['official-artwork'].front_default}" class="card-img-top">
+                                    <div class="card-body">
+                                        <h3 class="card-title">${pokemon.name}</h3>
+                                        <hr>
+                                        <h5>Habilidades</h5>
+                                        <p class="card-text">
+                                            <ul>
+                                                ${listAbilities}
+                                            </ul>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+
+                    })
+            });
+        }
+
+        function pokemonId(url) {
+            let id = url.replace(APP_URL, '').replace('/', '');
+            //console.log(id);
+            return id;
+        }
+
+    </script> -->
+</body>
+
+</html>
